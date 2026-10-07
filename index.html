@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yonius · Greek Restaurant en Lloret de Mar</title>
+<meta name="description" content="Yonius, restaurante griego en Lloret de Mar: gyros, souvlaki, musaka, tzatziki y postres griegos en una terraza llena de flores. Martes a domingo de 12:00 a 23:30. Tel. 663 38 71 31.">
+<meta name="theme-color" content="#0B1F45">
+<meta property="og:title" content="Yonius · Grecia, a la vuelta de la esquina">
+<meta property="og:description" content="Gyros, souvlaki y platos griegos de siempre en Lloret de Mar.">
+<meta property="og:image" content="assets/img/fachada-noche.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231F4FA0'/%3E%3Ctext x='32' y='45' font-family='Didot,Georgia,serif' font-size='38' fill='%23F6F3EC' text-anchor='middle'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ INTRO · el alfabeto griego se ordena en YONIUS ============ -->
+<div class="intro" id="intro" aria-hidden="true">
+  <svg class="intro__key" viewBox="0 0 1000 1000" preserveAspectRatio="none"><rect x="30" y="30" width="940" height="940" fill="none" pathLength="1"/></svg>
+  <div class="intro__word">
+    <span data-to="Y">Ψ</span><span data-to="O">Ω</span><span data-to="N">Ν</span><span data-to="I">Ι</span><span data-to="U">Υ</span><span data-to="S">Σ</span>
+  </div>
+  <p class="intro__sub">Greek Restaurant · Lloret de Mar</p>
+</div>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="Yonius, inicio">
+    <svg class="brand__key" viewBox="0 0 30 30" aria-hidden="true"><path d="M3 27V3h24v18H9V9h12v6h-6" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+    <span>Yonius</span>
+  </a>
+  <nav class="nav__links" id="navLinks" aria-label="Principal">
+    <a href="#opa">¡Opa!</a>
+    <a href="#carta">Carta</a>
+    <a href="#terraza">Terraza</a>
+    <a href="#reels">Reels</a>
+    <a href="#visita">Visítanos</a>
+  </nav>
+  <div class="nav__end">
+    <span class="status" data-status><i></i><b>—</b></span>
+    <a class="btn btn--blue btn--sm" href="tel:+34663387131"><i class="ph-light ph-phone"></i><span>Llamar</span></a>
+    <button class="nav__burger" id="burger" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Menú"><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="eyebrow"><span class="meander-dash"></span>Restaurante griego · Lloret de Mar</p>
+      <h1 class="hero__title">
+        <span class="line"><span>Grecia,</span></span>
+        <span class="line"><span><em>a la vuelta</em></span></span>
+        <span class="line"><span>de la esquina.</span></span>
+      </h1>
+      <p class="hero__lead">Gyros recién cortados, souvlaki a la brasa, musaka gratinada y baklava con miel. Cocina griega de verdad, en una terraza llena de flores.</p>
+      <div class="hero__cta">
+        <a class="btn btn--blue" href="#carta"><i class="ph-light ph-book-open-text"></i>Ver la carta</a>
+        <a class="btn btn--line" href="tel:+34663387131">663 38 71 31</a>
+      </div>
+      <ul class="hero__facts">
+        <li><b>4,7</b><span>★ en Google<br>386 reseñas</span></li>
+        <li><b>12–23:30</b><span>Martes a domingo<br>Lunes cerrado</span></li>
+      </ul>
+    </div>
+
+    <div class="hero__media">
+      <div class="sun" aria-hidden="true"></div>
+      <figure class="arch">
+        <video class="arch__video" data-auto data-src="assets/video/gyros-noche.mp4" poster="assets/img/poster-gyros.jpg" muted loop playsinline preload="none" aria-label="La terraza de Yonius llena de gente por la noche"></video>
+      </figure>
+      <svg class="badge" viewBox="0 0 200 200" aria-hidden="true">
+        <defs><path id="circ" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs>
+        <text><textPath href="#circ">GYROS · SOUVLAKI · MUSAKA · BAKLAVA · TZATZIKI · </textPath></text>
+      </svg>
+      <span class="badge__core" aria-hidden="true">Γ</span>
+    </div>
+  </section>
+
+  <!-- ============ MARQUESINA ============ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+      <span>Γύρος <i>gyros</i></span><span>Σουβλάκι <i>souvlaki</i></span><span>Μουσακάς <i>musaka</i></span><span>Τζατζίκι <i>tzatziki</i></span><span>Χαλούμι <i>halloumi</i></span><span>Μπακλαβάς <i>baklava</i></span>
+      <span>Γύρος <i>gyros</i></span><span>Σουβλάκι <i>souvlaki</i></span><span>Μουσακάς <i>musaka</i></span><span>Τζατζίκι <i>tzatziki</i></span><span>Χαλούμι <i>halloumi</i></span><span>Μπακλαβάς <i>baklava</i></span>
+    </div>
+  </div>
+
+  <!-- ============ ¡OPA! · rompe un plato ============ -->
+  <section class="opa" id="opa" aria-labelledby="opaT">
+    <div class="opa__head">
+      <p class="eyebrow"><span class="meander-dash"></span>Una tradición muy griega</p>
+      <h2 class="h2" id="opaT">¡Opa! Rompe un plato.</h2>
+      <p class="lead">En Grecia los platos se rompen cuando la fiesta lo merece. Aquí cada plato roto te descubre algo de nuestra carta. Toca el plato… y que suene.</p>
+    </div>
+
+    <div class="opa__stage">
+      <div class="table" id="table">
+        <button class="plate" id="plate" type="button" aria-label="Romper el plato y descubrir un plato de la carta">
+          <span class="plate__hint">Toca</span>
+        </button>
+        <div class="shards" id="shards" aria-hidden="true"></div>
+        <p class="opa__shout" id="shout" aria-hidden="true">ΩΠΑ!</p>
+      </div>
+
+      <div class="dish" id="dish" aria-live="polite">
+        <p class="dish__greek">Καλή όρεξη</p>
+        <h3 class="dish__name">¿Qué te toca hoy?</h3>
+        <p class="dish__desc">Rompe el plato y te lo decimos. Cada uno esconde un plato distinto de la carta.</p>
+        <p class="dish__price"></p>
+        <div class="dish__foot">
+          <span class="dish__count" id="broken">0 platos rotos</span>
+          <button class="btn btn--line btn--sm" id="again" type="button" hidden><i class="ph-light ph-arrow-counter-clockwise"></i>Otro plato</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CARTA ============ -->
+  <section class="carta" id="carta" aria-labelledby="cartaT">
+    <div class="carta__head">
+      <div>
+        <p class="eyebrow"><span class="meander-dash"></span>La carta</p>
+        <h2 class="h2" id="cartaT">Para picar, para compartir,<br><em>para repetir.</em></h2>
+      </div>
+      <figure class="carta__photo"><img src="assets/img/gyro-papel.jpg" alt="Gyro envuelto en papel de periódico, con patatas y tzatziki" loading="lazy" width="1502" height="1600"></figure>
+    </div>
+
+    <div class="carta__bar">
+      <div class="tabs" role="tablist" aria-label="Secciones de la carta">
+        <button role="tab" aria-selected="true" data-cat="mezze">Entrantes</button>
+        <button role="tab" aria-selected="false" data-cat="gyros">Gyros</button>
+        <button role="tab" aria-selected="false" data-cat="grill">Carnes y grill</button>
+        <button role="tab" aria-selected="false" data-cat="dulces">Postres</button>
+        <span class="tabs__ink" aria-hidden="true"></span>
+      </div>
+      <label class="veg">
+        <input type="checkbox" id="vegOnly">
+        <span class="veg__sw" aria-hidden="true"></span>
+        <span><i class="ph-light ph-leaf"></i> Solo vegetariano</span>
+      </label>
+    </div>
+
+    <ol class="menu" id="menu" aria-live="polite"></ol>
+    <p class="carta__note">Precios con IVA incluido. Pan de pita extra: 1,00 €. Pregunta al servicio por alérgenos e intolerancias.</p>
+  </section>
+
+  <!-- ============ TERRAZA · carrusel 3D ============ -->
+  <section class="terraza" id="terraza" aria-labelledby="terT">
+    <div class="terraza__head">
+      <p class="eyebrow eyebrow--light"><span class="meander-dash"></span>@yonius_greek_restaurant</p>
+      <h2 class="h2" id="terT">Flores, guirnaldas<br>y <em>noches largas.</em></h2>
+      <p class="lead">Arrastra para girar. Toca una foto para verla en grande.</p>
+    </div>
+    <div class="ring" id="ring" tabindex="0" aria-label="Carrusel de fotos de Yonius. Usa las flechas para girar.">
+      <div class="ring__spin" id="ringSpin"></div>
+    </div>
+    <div class="ring__ctrl">
+      <button class="circle-btn" type="button" data-ring="-1" aria-label="Foto anterior"><i class="ph-light ph-arrow-left"></i></button>
+      <p class="ring__cap" id="ringCap" aria-live="polite"></p>
+      <button class="circle-btn" type="button" data-ring="1" aria-label="Foto siguiente"><i class="ph-light ph-arrow-right"></i></button>
+    </div>
+  </section>
+
+  <!-- ============ REELS ============ -->
+  <section class="reels" id="reels" aria-labelledby="reelsT">
+    <div class="reels__copy">
+      <p class="eyebrow"><span class="meander-dash"></span>Desde Instagram</p>
+      <h2 class="h2" id="reelsT">Así suena una<br><em>noche en Yonius.</em></h2>
+      <p class="lead">La terraza se llena cuando cae el sol: luces encendidas, platos que van y vienen y el olor del gyros dando vueltas.</p>
+      <a class="btn btn--line" href="https://www.instagram.com/yonius_greek_restaurant/" target="_blank" rel="noopener"><i class="ph-light ph-instagram-logo"></i>Seguir en Instagram</a>
+    </div>
+    <div class="phones">
+      <figure class="phone phone--a">
+        <video data-auto data-src="assets/video/september-glow.mp4" poster="assets/img/poster-glow.jpg" muted loop playsinline preload="none"></video>
+        <button class="phone__sound" type="button" aria-label="Activar sonido"><i class="ph-light ph-speaker-slash"></i></button>
+        <figcaption>“September glow ✨”</figcaption>
+      </figure>
+      <figure class="phone phone--b">
+        <video data-auto data-src="assets/video/gyros-noche.mp4" poster="assets/img/poster-gyros.jpg" muted loop playsinline preload="none"></video>
+        <button class="phone__sound" type="button" aria-label="Activar sonido"><i class="ph-light ph-speaker-slash"></i></button>
+        <figcaption>“#gyros #traditionalgreekfood”</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ RESEÑAS ============ -->
+  <section class="reviews" aria-labelledby="revT">
+    <div class="reviews__head">
+      <h2 class="h2" id="revT"><span class="big">4,7</span> en Google</h2>
+      <p class="lead">386 reseñas. Esto es lo que más se repite.</p>
+    </div>
+    <div class="rv-marquee">
+      <div class="rv-track" id="rvTrack"></div>
+    </div>
+  </section>
+
+  <!-- ============ VISÍTANOS ============ -->
+  <section class="visit" id="visita" aria-labelledby="visT">
+    <div class="visit__card">
+      <p class="eyebrow"><span class="meander-dash"></span>Visítanos</p>
+      <h2 class="h2" id="visT">Carrer de Narcís Macià<br>i Domènech, 7</h2>
+      <p class="visit__city">17310 Lloret de Mar · Girona</p>
+      <p class="status status--big" data-status><i></i><b>—</b></p>
+      <table class="hours" id="hours"><caption class="sr">Horario</caption></table>
+      <div class="visit__cta">
+        <a class="btn btn--blue" href="https://www.google.com/maps/dir/?api=1&destination=Yonius%20Greek%20Restaurant%2C%20Carrer%20de%20Narc%C3%ADs%20Maci%C3%A0%20i%20Dom%C3%A8nech%207%2C%20Lloret%20de%20Mar" target="_blank" rel="noopener"><i class="ph-light ph-navigation-arrow"></i>Cómo llegar</a>
+        <a class="btn btn--line" href="tel:+34663387131"><i class="ph-light ph-phone"></i>663 38 71 31</a>
+        <a class="btn btn--line" href="https://www.instagram.com/yonius_greek_restaurant/" target="_blank" rel="noopener"><i class="ph-light ph-instagram-logo"></i>Instagram</a>
+      </div>
+    </div>
+    <div class="visit__map">
+      <iframe title="Mapa: Yonius Greek Restaurant en Lloret de Mar" src="https://maps.google.com/maps?q=Yonius%20Greek%20Restaurant%2C%20Carrer%20de%20Narc%C3%ADs%20Maci%C3%A0%20i%20Dom%C3%A8nech%207%2C%20Lloret%20de%20Mar&z=16&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <img class="visit__photo" src="assets/img/fachada-noche.jpg" alt="Fachada de Yonius de noche, con los letreros iluminados" loading="lazy" width="1280" height="1600">
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p class="foot__big">Γειά σου<span>!</span></p>
+  <p class="foot__tr">“¡Hola!” en griego. Nos vemos en Lloret.</p>
+  <div class="foot__row">
+    <span>Yonius · Greek Restaurant · Lloret de Mar</span>
+    <span>Fotos y vídeos: Instagram @yonius_greek_restaurant y Google</span>
+  </div>
+</footer>
+
+<!-- lightbox -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Foto ampliada" hidden>
+  <button class="lb__close" type="button" aria-label="Cerrar"><i class="ph-light ph-x"></i></button>
+  <img alt="">
+  <p class="lb__cap"></p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
