@@ -20,11 +20,93 @@ const watchdog = (tl, ms) => { setTimeout(() => { if (tl.progress() < 1) tl.prog
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
 /* ----------------------------------------------------------
+   IDIOMAS · castellano por defecto, ?lang=xx, se recuerda
+   ---------------------------------------------------------- */
+const I18N = window.YN_I18N || { langs: [{ c: 'es', n: 'Castellano', loc: 'es-ES' }], ui: { es: {} } };
+const LANGS = I18N.langs, CODES = LANGS.map((l) => l.c), LANG_KEY = 'yonius-lang';
+const store = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+let lang = [new URLSearchParams(location.search).get('lang'), store.get(LANG_KEY)].find((c) => CODES.includes(c)) || 'es';
+const t = (k, vars) => {
+  let s = (I18N.ui[lang] && I18N.ui[lang][k]) ?? (I18N.ui.es && I18N.ui.es[k]) ?? k;
+  if (vars) for (const v in vars) s = s.split('{' + v + '}').join(vars[v]);
+  return s;
+};
+const loc = () => (LANGS.find((l) => l.c === lang) || LANGS[0]).loc;
+const plural = (n, one, many) => t(new Intl.PluralRules(loc()).select(n) === 'one' ? one : many, { n });
+const price = (p) => { try { return new Intl.NumberFormat(loc(), { style: 'currency', currency: 'EUR' }).format(parseFloat(p.replace(',', '.'))); } catch (e) { return p + ' €'; } };
+// plato de la carta en el idioma actual: [nombre, descripción]
+const dish = (i) => (I18N.carta && I18N.carta[lang] && I18N.carta[lang][i.n]) || [i.n, i.d];
+const onLang = [];
+function paintSwitches() {
+  const cur = LANGS.find((l) => l.c === lang);
+  $$('[data-lang-switch]').forEach((box) => {
+    box.innerHTML = `<button class="lang__btn" type="button" aria-expanded="false" aria-label="${t('lang.change')} (${cur.n})"><i class="ph-light ph-globe-simple" aria-hidden="true"></i><span>${cur.c.toUpperCase()}</span><i class="ph-light ph-caret-down" aria-hidden="true"></i></button>
+      <ul class="lang__menu" hidden>${LANGS.map((l) => `<li><button type="button" lang="${l.c}" data-set-lang="${l.c}"${l.c === lang ? ' aria-current="true"' : ''}><b>${l.c.toUpperCase()}</b>${l.n}</button></li>`).join('')}</ul>`;
+  });
+  $$('[data-lang-list]').forEach((box) => {
+    box.innerHTML = `<span>${t('lang.label')}</span>` + LANGS.map((l) => `<button type="button" lang="${l.c}" data-set-lang="${l.c}"${l.c === lang ? ' aria-current="true"' : ''}>${l.n}</button>`).join('');
+  });
+}
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.title = t('meta.title');
+  const md = $('#metaDesc'); if (md) md.setAttribute('content', t('meta.desc'));
+  $$('[data-i18n]').forEach((el) => { el.innerHTML = t(el.dataset.i18n); });
+  $$('[data-i18n-attr]').forEach((el) => el.dataset.i18nAttr.split(';').forEach((p) => {
+    const [a, k] = p.split(':'); if (a && k) el.setAttribute(a.trim(), t(k.trim()));
+  }));
+  // el mapa de Google en el idioma de la página
+  const map = $('#map');
+  if (map) { const u = new URL(map.src); if ((u.searchParams.get('hl') || 'es') !== lang) { u.searchParams.set('hl', lang); map.src = u.href; } }
+  paintSwitches();
+  onLang.forEach((f) => f());
+}
+function setLang(c) {
+  if (!CODES.includes(c) || c === lang) return;
+  lang = c;
+  store.set(LANG_KEY, c);
+  try {
+    const u = new URL(location.href);
+    if (c === 'es') u.searchParams.delete('lang'); else u.searchParams.set('lang', c);
+    history.replaceState(history.state, '', u);
+  } catch (e) {}
+  applyLang();
+  if (hasGSAP) ScrollTrigger.refresh();
+}
+const closeLangMenus = () => $$('.lang__menu:not([hidden])').forEach((m) => { m.hidden = true; m.previousElementSibling.setAttribute('aria-expanded', 'false'); });
+document.addEventListener('click', (e) => {
+  const sw = e.target.closest('.lang__btn');
+  if (sw) {
+    const m = sw.nextElementSibling, open = m.hidden;
+    closeLangMenus(); m.hidden = !open; sw.setAttribute('aria-expanded', String(open));
+    if (open) { const c = m.querySelector('[aria-current]'); if (c) c.focus(); }
+    return;
+  }
+  const set = e.target.closest('[data-set-lang]');
+  if (set) {
+    const box = set.closest('[data-lang-switch]');
+    closeLangMenus(); setLang(set.dataset.setLang);
+    if (box) { const b = box.querySelector('.lang__btn'); if (b) b.focus(); }
+    return;
+  }
+  if (!e.target.closest('.lang__menu')) closeLangMenus();
+});
+document.addEventListener('keydown', (e) => {
+  const m = $('.lang__menu:not([hidden])');
+  if (!m) return;
+  const items = $$('button', m), i = items.indexOf(document.activeElement);
+  if (e.key === 'Escape') { closeLangMenus(); m.previousElementSibling.focus(); }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus(); }
+});
+document.addEventListener('focusin', (e) => { const m = $('.lang__menu:not([hidden])'); if (m && !m.parentNode.contains(e.target)) closeLangMenus(); });
+applyLang();
+
+/* ----------------------------------------------------------
    DATOS DEL NEGOCIO
    ---------------------------------------------------------- */
 // minutos desde medianoche · 0 = domingo
 const HOURS = { 0: [[720, 1410]], 1: null, 2: [[720, 1410]], 3: [[720, 1410]], 4: [[720, 1410]], 5: [[720, 1410]], 6: [[720, 1410]] };
-const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const days = () => t('st.days').split(',');
 
 const MENU = {
   mezze: [
@@ -68,36 +150,38 @@ const MENU = {
 };
 
 const OPA = [
-  { ...MENU.gyros[0], tag: 'El clásico' },
+  { ...MENU.gyros[0], tag: 'tag.classic' },
   { ...MENU.gyros[6] },
-  { ...MENU.grill[3], tag: 'Al horno' },
-  { ...MENU.mezze[4], tag: 'Favorito en las reseñas' },
+  { ...MENU.grill[3], tag: 'tag.oven' },
+  { ...MENU.mezze[4], tag: 'tag.fav' },
   { ...MENU.mezze[8] },
   { ...MENU.mezze[7] },
   { ...MENU.gyros[7] },
   { ...MENU.grill[0] },
-  { ...MENU.dulces[0], tag: 'Con miel' },
+  { ...MENU.dulces[0], tag: 'tag.honey' },
   { ...MENU.dulces[2] },
   { ...MENU.dulces[3] },
   { ...MENU.mezze[9] },
   { ...MENU.mezze[2] },
-  { ...MENU.mezze[5], tag: 'Pica un poco' },
+  { ...MENU.mezze[5], tag: 'tag.spicy' },
   { ...MENU.mezze[3] },
   { ...MENU.mezze[0] },
   { ...MENU.grill[1] },
   { ...MENU.gyros[8] }
 ];
 
+// q = pie original de Instagram (no se traduce) · k = pie propio · alt = descripción
 const PHOTOS = [
-  { src: 'assets/img/terraza-flores.jpg', cap: '“Best gyros, come and try”' },
-  { src: 'assets/img/fachada-noche.jpg', cap: '“Full house, full hearts. Thank you!” 🩵' },
-  { src: 'assets/img/gyro-papel.jpg', cap: 'El gyros, envuelto y listo' },
-  { src: 'assets/img/sala.jpg', cap: 'Dentro, azul y blanco' },
-  { src: 'assets/img/terraza-dia.jpg', cap: '“Souvlaki, tzatziki and summer memories!”' },
-  { src: 'assets/img/rincon.jpg', cap: 'El rincón de los cojines' },
-  { src: 'assets/img/gyro-pita.jpg', cap: 'Gyro recién hecho' },
-  { src: 'assets/img/terraza-cojines.jpg', cap: 'La terraza a mediodía' }
+  { src: 'assets/img/terraza-flores.jpg', q: '“Best gyros, come and try”', alt: 'ph.a0' },
+  { src: 'assets/img/fachada-noche.jpg', q: '“Full house, full hearts. Thank you!” 🩵', alt: 'ph.a1' },
+  { src: 'assets/img/gyro-papel.jpg', k: 'ph.gyro', alt: 'ph.a2' },
+  { src: 'assets/img/sala.jpg', k: 'ph.sala', alt: 'ph.a3' },
+  { src: 'assets/img/terraza-dia.jpg', q: '“Souvlaki, tzatziki and summer memories!”', alt: 'ph.a4' },
+  { src: 'assets/img/rincon.jpg', k: 'ph.rincon', alt: 'ph.a5' },
+  { src: 'assets/img/gyro-pita.jpg', k: 'ph.pita', alt: 'ph.a6' },
+  { src: 'assets/img/terraza-cojines.jpg', k: 'ph.mediodia', alt: 'ph.a7' }
 ];
+const capOf = (p) => (p.k ? t(p.k) : p.q);
 
 const REVIEWS = [
   ['Nos ha encantado descubrir Yonius. Un restaurante griego familiar, de esos sitios donde se nota que hay cariño por lo que hacen.', 'Reseña en Google'],
@@ -121,32 +205,38 @@ function statusText() {
   const { day, min } = madridNow();
   const today = HOURS[day] || [];
   for (const [a, b] of today) {
-    if (min >= a && min < b) return b - min <= 30 ? ['soon', `Cierra pronto · ${hhmm(b)}`] : ['open', `Abierto · hasta las ${hhmm(b)}`];
-    if (min < a && a - min <= 60) return ['soon', `Abre a las ${hhmm(a)}`];
-    if (min < a) return ['closed', `Cerrado · abre a las ${hhmm(a)}`];
+    if (min >= a && min < b) return b - min <= 30 ? ['soon', t('st.soon', { h: hhmm(b) })] : ['open', t('st.open', { h: hhmm(b) })];
+    if (min < a && a - min <= 60) return ['soon', t('st.opensAt', { h: hhmm(a) })];
+    if (min < a) return ['closed', t('st.closedAt', { h: hhmm(a) })];
   }
   for (let k = 1; k <= 7; k++) {
     const d = (day + k) % 7;
-    if (HOURS[d]) return ['closed', `Cerrado · abre ${k === 1 ? 'mañana' : 'el ' + DAYS[d].toLowerCase()} a las ${hhmm(HOURS[d][0][0])}`];
+    if (!HOURS[d]) continue;
+    const h = hhmm(HOURS[d][0][0]);
+    if (k === 1) return ['closed', t('st.closedTomorrow', { h })];
+    const name = days()[d];
+    return ['closed', t('st.closedDay', { h, d: lang === 'en' ? name : name.toLowerCase() })];
   }
-  return ['closed', 'Cerrado'];
+  return ['closed', t('st.closed')];
 }
 function paintStatus() {
   const [state, txt] = statusText();
   $$('[data-status]').forEach((el) => { el.dataset.state = state; $('b', el).textContent = txt; });
 }
 function paintHours() {
-  const t = $('#hours'); if (!t) return;
+  const tb = $('#hours'); if (!tb) return;
   const { day } = madridNow();
+  $$('tr', tb).forEach((r) => r.remove());
   [1, 2, 3, 4, 5, 6, 0].forEach((d) => {
     const tr = document.createElement('tr');
     if (d === day) tr.className = 'is-today';
-    tr.innerHTML = `<td>${DAYS[d]}</td><td>${HOURS[d] ? HOURS[d].map(([a, b]) => `${hhmm(a)} – ${hhmm(b)}`).join(' · ') : 'Cerrado'}</td>`;
-    t.appendChild(tr);
+    tr.innerHTML = `<td>${days()[d]}</td><td>${HOURS[d] ? HOURS[d].map(([a, b]) => `${hhmm(a)} – ${hhmm(b)}`).join(' · ') : t('st.closed')}</td>`;
+    tb.appendChild(tr);
   });
 }
 paintStatus(); paintHours();
 setInterval(paintStatus, 60000);
+onLang.push(paintStatus, paintHours);
 
 /* ----------------------------------------------------------
    SCROLL SUAVE + NAV
@@ -195,13 +285,22 @@ const vio = new IntersectionObserver((entries) => entries.forEach((e) => {
   } else v.pause();
 }), { rootMargin: '250px 0px', threshold: 0.01 });
 $$('video[data-auto]').forEach((v) => vio.observe(v));
+function paintSound() {
+  $$('.phone__sound').forEach((b) => {
+    const on = !$('video', b.parentElement).muted;
+    $('i', b).className = on ? 'ph-light ph-speaker-high' : 'ph-light ph-speaker-slash';
+    b.setAttribute('aria-label', t(on ? 'reels.mute' : 'reels.sound'));
+  });
+}
 $$('.phone__sound').forEach((b) => b.addEventListener('click', () => {
   const v = $('video', b.parentElement);
   const willUnmute = v.muted;
   $$('.phone video').forEach((o) => { o.muted = true; });
-  $$('.phone__sound i').forEach((i) => { i.className = 'ph-light ph-speaker-slash'; });
-  if (willUnmute) { v.muted = false; v.play().catch(() => {}); $('i', b).className = 'ph-light ph-speaker-high'; }
+  if (willUnmute) { v.muted = false; v.play().catch(() => {}); }
+  paintSound();
 }));
+paintSound();
+onLang.push(paintSound);
 
 /* ----------------------------------------------------------
    INTRO · el alfabeto griego se ordena en YONIUS
@@ -278,6 +377,8 @@ const againBtn = $('#again');
 let broken = 0;
 let bag = [];
 let busy = false;
+let current = null;
+let hintKey = 'opa.tap';
 plate.insertAdjacentHTML('afterbegin', plateSVG('p'));
 
 let actx = null;
@@ -308,17 +409,24 @@ function nextDish() {
   return OPA[bag.pop()];
 }
 
-function showDish(d) {
+// sin plato (current = null) muestra la pregunta inicial
+function paintDish(animate) {
+  const d = current;
+  const [name, desc] = d ? dish(d) : [t('opa.q'), t('opa.qDesc')];
   dishBox.innerHTML = `
-    <p class="dish__greek">${d.g || 'Καλή όρεξη'}</p>
-    <h3 class="dish__name">${d.n}${d.tag ? `<span class="dish__tag">${d.tag}</span>` : ''}</h3>
-    <p class="dish__desc">${d.d}</p>
-    <p class="dish__price">${d.p} €</p>
-    <div class="dish__foot"><span class="dish__count">${broken} ${broken === 1 ? 'plato roto' : 'platos rotos'}</span></div>`;
+    <p class="dish__greek">${(d && d.g) || 'Καλή όρεξη'}</p>
+    <h3 class="dish__name">${name}${d && d.tag ? `<span class="dish__tag">${t(d.tag)}</span>` : ''}</h3>
+    <p class="dish__desc">${desc}</p>
+    <p class="dish__price">${d ? price(d.p) : ''}</p>
+    <div class="dish__foot"><span class="dish__count">${plural(broken, 'opa.count1', 'opa.countN')}</span></div>`;
   $('.dish__foot', dishBox).appendChild(againBtn);
-  againBtn.hidden = false;
-  if (motion) gsap.from($$('.dish > *', dishBox), { y: 18, opacity: 0, filter: 'blur(6px)', duration: 0.7, ease: 'expo.out', stagger: 0.06 });
+  againBtn.hidden = !d;
+  $('.plate__hint', plate).textContent = t(hintKey);
+  if (animate && motion) gsap.from($$('.dish > *', dishBox), { y: 18, opacity: 0, filter: 'blur(6px)', duration: 0.7, ease: 'expo.out', stagger: 0.06 });
 }
+function showDish(d) { current = d; paintDish(true); }
+paintDish(false);
+onLang.push(() => paintDish(false));
 
 function shatter() {
   if (busy || plate.classList.contains('is-broken')) return;
@@ -369,7 +477,8 @@ function newPlate() {
   if (busy) return;
   shardsBox.innerHTML = '';
   plate.classList.remove('is-broken');
-  $('.plate__hint', plate).textContent = '¡Otra vez!';
+  hintKey = 'opa.again';
+  $('.plate__hint', plate).textContent = t(hintKey);
   if (motion) gsap.fromTo(plate, { y: -260, rotation: -30, opacity: 0 }, { y: 0, rotation: 0, opacity: 1, duration: 0.9, ease: 'bounce.out' });
   plate.focus({ preventScroll: true });
 }
@@ -387,19 +496,22 @@ const veg = $('#vegOnly');
 let cat = 'mezze';
 
 function moveInk() {
-  const t = tabs.find((b) => b.dataset.cat === cat);
-  ink.style.width = t.offsetWidth + 'px';
-  ink.style.transform = `translate(${t.offsetLeft}px, ${t.offsetTop}px)`;
-  ink.style.height = t.offsetHeight + 'px';
+  const tab = tabs.find((b) => b.dataset.cat === cat);
+  ink.style.width = tab.offsetWidth + 'px';
+  ink.style.transform = `translate(${tab.offsetLeft}px, ${tab.offsetTop}px)`;
+  ink.style.height = tab.offsetHeight + 'px';
 }
 function renderMenu(animate = true) {
   const list = MENU[cat].filter((i) => !veg.checked || i.v);
-  menuEl.innerHTML = list.length ? list.map((i) => `
+  menuEl.innerHTML = list.length ? list.map((i) => {
+    const [name, desc] = dish(i);
+    return `
     <li class="item">
-      <p class="item__name">${i.n}${i.g ? `<small>${i.g}</small>` : ''}${i.v ? '<i class="ph-light ph-leaf" title="Vegetariano"></i>' : ''}</p>
-      <p class="item__price">${i.p} €</p>
-      <p class="item__desc">${i.d}</p>
-    </li>`).join('') : '<li class="menu__empty">En esta sección no hay platos vegetarianos. Prueba en Entrantes o Postres.</li>';
+      <p class="item__name">${name}${i.g ? `<small>${i.g}</small>` : ''}${i.v ? `<i class="ph-light ph-leaf" title="${t('carta.vegTitle')}"></i>` : ''}</p>
+      <p class="item__price">${price(i.p)}</p>
+      <p class="item__desc">${desc}</p>
+    </li>`;
+  }).join('') : `<li class="menu__empty">${t('carta.empty')}</li>`;
   if (animate && motion) gsap.from($$('.item', menuEl), { y: 22, opacity: 0, duration: 0.7, ease: 'expo.out', stagger: 0.035 });
 }
 tabs.forEach((b) => b.addEventListener('click', () => {
@@ -418,6 +530,7 @@ renderMenu(false);
 moveInk();
 addEventListener('resize', moveInk);
 if (document.fonts) document.fonts.ready.then(moveInk);
+onLang.push(() => { renderMenu(false); moveInk(); });
 
 /* ----------------------------------------------------------
    TERRAZA · anillo 3D que se arrastra
@@ -431,7 +544,7 @@ let rot = 0, vel = 0, radius = 400, dragging = false, ringVisible = false, autoO
 const cards = PHOTOS.map((p, i) => {
   const el = document.createElement('div');
   el.className = 'ring__card';
-  el.innerHTML = `<img src="${p.src}" alt="${p.cap.replace(/[“”"]/g, '')}" loading="lazy" draggable="false">`;
+  el.innerHTML = `<img src="${p.src}" alt="${t(p.alt)}" loading="lazy" draggable="false">`;
   el.dataset.i = i;
   spin.appendChild(el);
   return el;
@@ -452,7 +565,7 @@ function paintRing() {
     c.style.filter = `brightness(${0.45 + 0.55 * Math.max(0, k)})`;
   });
   const f = frontIndex();
-  if (f !== lastFront) { lastFront = f; cap.textContent = PHOTOS[f].cap; }
+  if (f !== lastFront) { lastFront = f; cap.textContent = capOf(PHOTOS[f]); }
 }
 function snapTo(target) {
   if (snapTween) snapTween.kill();
@@ -508,10 +621,17 @@ addEventListener('resize', layoutRing);
    LIGHTBOX
    ---------------------------------------------------------- */
 const lb = $('#lb');
+let lbIndex = -1;
+function paintLB() {
+  if (lbIndex < 0) return;
+  const p = PHOTOS[lbIndex];
+  $('img', lb).alt = t(p.alt);
+  $('.lb__cap', lb).textContent = capOf(p);
+}
 function openLB(i) {
-  const p = PHOTOS[i];
-  $('img', lb).src = p.src; $('img', lb).alt = p.cap.replace(/[“”"]/g, '');
-  $('.lb__cap', lb).textContent = p.cap;
+  lbIndex = i;
+  $('img', lb).src = PHOTOS[i].src;
+  paintLB();
   lb.hidden = false; lenis?.stop();
   $('.lb__close', lb).focus();
   if (motion) gsap.fromTo($('img', lb), { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: 'expo.out' });
@@ -520,12 +640,22 @@ function closeLB() { lb.hidden = true; lenis?.start(); ring.focus({ preventScrol
 $('.lb__close', lb).addEventListener('click', closeLB);
 lb.addEventListener('click', (e) => { if (e.target === lb) closeLB(); });
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lb.hidden) closeLB(); });
+onLang.push(() => {
+  cards.forEach((c, i) => { $('img', c).alt = t(PHOTOS[i].alt); });
+  lastFront = -1; paintRing(); paintLB();
+});
 
 /* ----------------------------------------------------------
-   RESEÑAS
+   RESEÑAS · en otro idioma, traducidas del castellano
    ---------------------------------------------------------- */
-const rvHTML = REVIEWS.map(([t, w]) => `<figure class="rv"><span class="rv__stars" aria-label="5 estrellas">★★★★★</span><p>«${t}»</p><cite>${w}</cite></figure>`).join('');
-$('#rvTrack').innerHTML = rvHTML + rvHTML.replace(/<figure class="rv">/g, '<figure class="rv" aria-hidden="true">');
+function paintReviews() {
+  const tr = (I18N.reviews && I18N.reviews[lang]) || [];
+  const q = lang === 'en' ? ['“', '”'] : lang === 'fr' ? ['« ', ' »'] : ['«', '»'];
+  const rvHTML = REVIEWS.map(([txt], i) => `<figure class="rv"><span class="rv__stars" aria-label="${t('rev.stars')}">★★★★★</span><p>${q[0]}${tr[i] || txt}${q[1]}</p><cite>${t('rev.cite')}</cite></figure>`).join('');
+  $('#rvTrack').innerHTML = rvHTML + rvHTML.replace(/<figure class="rv">/g, '<figure class="rv" aria-hidden="true">');
+}
+paintReviews();
+onLang.push(paintReviews);
 
 /* ----------------------------------------------------------
    ANIMACIONES DE SCROLL
